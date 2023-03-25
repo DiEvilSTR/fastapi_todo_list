@@ -1,7 +1,10 @@
 from datetime import datetime
 from pydantic import BaseModel, Field, EmailStr
 
+from .task import Task
 
+
+# TODO: Use this UserBase, UserCreate, User in endpoints
 class UserBase(BaseModel):
     username: str
 
@@ -21,6 +24,7 @@ class User(UserBase):
         orm_mode = True
 
 
+# TODO: Stop using this and delete it
 class UserSchema(BaseModel):
     name: str = Field(default=None)
     email: EmailStr = Field(default=None)
