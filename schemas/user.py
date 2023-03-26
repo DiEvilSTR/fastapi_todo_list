@@ -14,7 +14,7 @@ class UserCreate(UserBase):
 
 
 class User(UserBase):
-    username: int
+    username: str
     is_active: bool
     created_at: datetime
     updated_at: datetime
@@ -25,19 +25,19 @@ class User(UserBase):
 
 
 # TODO: Stop using this and delete it
-class UserSchema(BaseModel):
-    name: str = Field(default=None)
-    email: EmailStr = Field(default=None)
-    password: str = Field(default=None)
+# class UserSchema(BaseModel):
+#     name: str = Field(default=None)
+#     email: EmailStr = Field(default=None)
+#     password: str = Field(default=None)
 
-    class Config:
-        the_schema = {
-            "user_demo": {
-                "name": "Envy",
-                "email": "envy@shmenvy.com",
-                "password": "666"
-            }
-        }
+#     class Config:
+#         the_schema = {
+#             "user_demo": {
+#                 "name": "Envy",
+#                 "email": "envy@shmenvy.com",
+#                 "password": "666"
+#             }
+#         }
 
 
 class UserLoginSchema(BaseModel):

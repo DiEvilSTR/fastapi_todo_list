@@ -24,7 +24,7 @@ tasks = [
 
 router = APIRouter()
 
-@router.get("/task/{task_id}", tags=["task"])
+@router.get("/{task_id}")
 def get_task_by_id(task_id: Optional[int] = None):
     if task_id > len(tasks):
         raise HTTPException(
@@ -36,7 +36,7 @@ def get_task_by_id(task_id: Optional[int] = None):
 
 
 #4 Post a new task [A handler for creating a task]
-@router.post("/task", dependencies=[Depends(JWTBearer())], tags=["task"])
+@router.post("/", dependencies=[Depends(JWTBearer())])
 def post_task(task: TaskSchema):
     task.id = len(tasks) + 1
     tasks.append(task.dict())
