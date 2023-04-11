@@ -1,9 +1,8 @@
-from typing import Optional, List
+from typing import List
 
-from fastapi import APIRouter, Body, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from core.jwt_authentication.jwt_handler import sign_jwt
 from schemas.user import User, UserCreate
 
 from crud.crud_user import get_user, get_users, create_user
@@ -29,7 +28,7 @@ async def user_signup(user: UserCreate, db: Session = Depends(get_db)):
             status_code=status.HTTP_409_CONFLICT, detail="Username is already registered."
         )
     create_user(db=db, user=user)
-    return sign_jwt(user.username)
+    return db_user
 
 
 #3 Read User [Get user by username]

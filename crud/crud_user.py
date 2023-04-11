@@ -1,8 +1,10 @@
 from decouple import config
 from sqlalchemy.orm import Session
 
+from core.security import get_password_hash, verify_password
 from models.user import User
 from schemas.user import UserCreate
+from schemas.login import UserLogin
 
 PASSWORD_HASH = config('PASSWORD_HASH')
 
@@ -15,19 +17,17 @@ def get_users(db: Session, skip: int = 0, limit: int = 100):
 
 
 def create_user(db: Session, user: UserCreate):
-    fake_hashed_password = user.password + PASSWORD_HASH
-    db_user = User(username=user.username, hashed_password=fake_hashed_password)
+    hashed_password = get_password_hash(user.password)
+    db_user = User(username=user.username, hashed_password=hashed_password)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
     return db_user
 
 
-def authenticate(db: Session, username: str, password: str):
-    hashed_entered_password = password + PASSWORD_HASH
-    db_user = get_user(db, username=username)
-    if not db_user:
+def authenticate(db: Session, user: UserLogin):
+    db_user = get_user(db=db, username=user.username)
+    if db_user and verify_password(user.password, db_user.hashed_password):
+        return True
+    else:
         return None
-    if not hashed_entered_password == db_user.hashed_password:
-        return None
-    return db_user

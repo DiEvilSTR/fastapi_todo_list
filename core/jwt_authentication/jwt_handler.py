@@ -13,7 +13,8 @@ token_lifespan = 600
 # Function returns the generated Tokens (JWTs)
 def token_response(token: str):
     return {
-        "access token": token
+        "access token": token,
+        "token_type": "bearer"
     }
 
 
