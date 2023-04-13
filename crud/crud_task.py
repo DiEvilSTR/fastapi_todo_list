@@ -46,3 +46,14 @@ def delete_task(db: Session, task_id: int):
         return db_task
     else:
         return False
+
+
+def mark_task_as_done(db: Session, task_id: int):
+    db_task = get_task_by_id(db=db, task_id=task_id)
+    if db_task:
+        db_task.is_done = True
+        db.commit()
+        db.refresh(db_task)
+        return db_task
+    else:
+        return None

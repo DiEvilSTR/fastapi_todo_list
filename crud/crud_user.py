@@ -31,3 +31,16 @@ def authenticate(db: Session, user: UserLogin):
         return True
     else:
         return None
+
+
+def change_user_status(db: Session, username: str, status: bool):
+    db_user = get_user(db=db, username=username)
+    if db_user:
+        db_user.is_active = status
+        db.commit()
+        db.refresh(db_user)
+        return db_user
+    else:
+        return None
+
+

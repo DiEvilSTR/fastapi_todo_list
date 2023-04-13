@@ -9,7 +9,7 @@ class TaskBase(BaseModel):
 
 
 class TaskCreate(TaskBase):
-    pass
+    created_by: str = 'envy'
 
 
 class TaskUpdate(TaskBase):
