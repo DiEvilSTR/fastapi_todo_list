@@ -17,8 +17,7 @@ class JWTBearer(HTTPBearer):
                 )
             if not self.verify_jwt(credentials.credentials):
                 raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token or expired token.")
-            # request.state.username = decode_jwt(credentials.credentials)["username"]
-            return credentials.credentials
+            return self.get_username(credentials.credentials)
         else:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid authorization code."

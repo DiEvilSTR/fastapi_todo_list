@@ -30,7 +30,14 @@ async def user_signup(user: UserCreate, db: Session = Depends(get_db)):
     return db_user
 
 
-#3 Read User [Get user by username]
+#3 Read current user [Get current user]
+@router.get("/me", response_model=User, dependencies=[Depends(JWTBearer())])
+async def read_current_user(db: Session = Depends(get_db), username: str = Depends(JWTBearer())):
+    db_user = get_user(db=db, username=username)
+    return db_user
+
+
+#4 Read User [Get user by username]
 @router.get("/user/{username}", response_model=User, dependencies=[Depends(JWTBearer())])
 async def read_user(username: str, db: Session = Depends(get_db)):
     db_user = get_user(db=db, username=username)
