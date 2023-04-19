@@ -1,5 +1,5 @@
 from datetime import datetime
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from typing import Optional
 
 
@@ -15,7 +15,7 @@ class TaskCreate(TaskBase):
 class TaskUpdate(TaskBase):
     title: Optional[str] = None
     description: Optional[str] = None
-    is_done: bool = None
+    is_done: Optional[bool] = False
 
 
 class Task(TaskBase):
