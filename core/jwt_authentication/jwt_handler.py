@@ -7,7 +7,7 @@ from decouple import config
 JWT_SECRET_KEY = config("SECRET_KEY")
 JWT_ALGORITHM = config("ALGORITHM")
 
-token_lifespan = 600
+token_lifespan = 60000
 
 
 # Function used for signing the JWT string
