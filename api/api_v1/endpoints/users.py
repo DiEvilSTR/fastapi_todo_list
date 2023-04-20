@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Response
 from sqlalchemy.orm import Session
 
 from core.jwt_authentication.jwt_bearer import JWTBearer
@@ -54,29 +54,31 @@ def read_user(username: str, db: Session = Depends(get_db)):
 #5 Update User Profile [Update user profile]
 @router.patch("/user/{username}", response_model=UserProfile, dependencies=[Depends(JWTBearer())])
 def update_user_profile(username: str, updated_user_profile: UserProfileUpdate, db: Session = Depends(get_db), current_user: str = Depends(JWTBearer())):
-    if current_user != username:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="You are not authorized to update this user."
-        )
-    db_user_profile = user_profile_get(db=db, username=current_user)
+    db_user_profile = user_profile_get(db=db, username=username)
     if db_user_profile is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="User with this username does not exists."
+        )
+    if current_user != db_user_profile.username:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="You are not allowed to update this user."
         )
     db_user_profile = user_profile_update(db=db, user_profile=updated_user_profile, username=current_user)
     return db_user_profile
 
 
 #6 Delete User [Delete user, user profile, and all user's tasks]
-@router.delete("/user/{username}", response_model=User, dependencies=[Depends(JWTBearer())])
-def delete_user_by_username(username: str, db: Session = Depends(get_db), current_user: str = Depends(JWTBearer())):
-    if current_user != username:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="You are not authorized to delete this user."
-        )
-    db_user = get_user(db=db, username=current_user)
+@router.delete("/user/{username}", dependencies=[Depends(JWTBearer())])
+def delete_user_by_username(username: str, db: Session = Depends(get_db), current_user: str = Depends(JWTBearer()), response: Response = Response()):
+    db_user = get_user(db=db, username=username)
     if db_user is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="User with this username does not exists."
         )
-    return delete_user(db=db, username=current_user)
+    if current_user != db_user.username:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="You are not allowed to delete this user."
+        )
+    delete_user(db=db, username=current_user)
+    response.delete_cookie("JWTBearer")
+    return {"detail": f"User {username} deleted successfully."}

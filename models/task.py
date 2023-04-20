@@ -12,6 +12,6 @@ class Task(Timestamp, Base):
     title = Column(String(50), nullable=False)
     description = Column(String(200), nullable=True)
     is_done = Column(Boolean, default=False)
-    created_by = Column(String, ForeignKey("users.username"), nullable=False)
+    created_by = Column(String, ForeignKey("user_profiles.username"), nullable=False)
 
-    task_owner = relationship("User", back_populates="tasks", uselist=False)
+    task_owner = relationship("UserProfile", back_populates="tasks", uselist=False)

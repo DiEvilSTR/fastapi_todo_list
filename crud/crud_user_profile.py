@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session, relationship
+from sqlalchemy.orm import selectinload, Session
 
 
 from models.user import UserProfile

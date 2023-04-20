@@ -33,8 +33,8 @@ def post_task(task: TaskCreate, db: Session = Depends(get_db), current_user: str
 
 #3 Read Task by id [Get task by task id]
 @router.get("/{task_id}", response_model=Task, dependencies=[Depends(JWTBearer())])
-def read_task_by_id(task_id: int, db: Session = Depends(get_db), current_user: str = Depends(JWTBearer())):
-    db_task = get_task_by_id(db=db, task_id=task_id, username=current_user)
+def read_task_by_id(task_id: int, db: Session = Depends(get_db)):
+    db_task = get_task_by_id(db=db, task_id=task_id)
     if db_task is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Task with this task id does not exist."
@@ -45,22 +45,30 @@ def read_task_by_id(task_id: int, db: Session = Depends(get_db), current_user: s
 #4 Update a task [Update a task]
 @router.patch("/{task_id}", response_model=Task, dependencies=[Depends(JWTBearer())])
 def update_task_by_id(task_id: int, updated_task: TaskUpdate, db: Session = Depends(get_db), current_user: str = Depends(JWTBearer())):
-    db_task = get_task_by_id(db=db, task_id=task_id, username=current_user)
+    db_task = get_task_by_id(db=db, task_id=task_id)
     if db_task is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Task with this task id does not exist."
         )
-    update_task(db=db, task_id=task_id, task=updated_task, username=current_user)
+    if db_task.created_by != current_user:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="You are not allowed to update this task."
+        )
+    update_task(db=db, task_id=task_id, task=updated_task)
     return db_task
 
 
 # 5 Delete a task [Delete a task]
 @router.delete("/{task_id}", response_model=Task, dependencies=[Depends(JWTBearer())])
 def delete_task_by_id(task_id: int, db: Session = Depends(get_db), current_user: str = Depends(JWTBearer())):
-    db_task = get_task_by_id(db=db, task_id=task_id, username=current_user)
+    db_task = get_task_by_id(db=db, task_id=task_id)
     if db_task is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Task with this task id does not exist."
         )
-    delete_task(db=db, task_id=task_id, username=current_user)
+    if db_task.created_by != current_user:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="You are not allowed to delete this task."
+        )
+    delete_task(db=db, task_id=task_id)
     return db_task

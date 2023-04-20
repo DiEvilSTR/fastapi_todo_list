@@ -13,7 +13,6 @@ class User(Timestamp, Base):
     is_active = Column(Boolean, default=False)
 
     profile = relationship("UserProfile", back_populates="owner", uselist=False, cascade="all, delete-orphan")
-    tasks = relationship("Task", back_populates="task_owner", cascade="all, delete-orphan")
 
 
 class UserProfile(Timestamp, Base):
@@ -24,3 +23,4 @@ class UserProfile(Timestamp, Base):
     last_name = Column(String(50), nullable=True)
 
     owner = relationship("User", back_populates="profile")
+    tasks = relationship("Task", back_populates="task_owner", cascade="all, delete-orphan")
