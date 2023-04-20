@@ -69,7 +69,7 @@ def update_user_profile(username: str, updated_user_profile: UserProfileUpdate, 
 
 #6 Delete User [Delete user, user profile, and all user's tasks]
 @router.delete("/user/{username}", dependencies=[Depends(JWTBearer())])
-def delete_user_by_username(username: str, db: Session = Depends(get_db), current_user: str = Depends(JWTBearer()), response: Response = Response()):
+def delete_user_by_username(username: str, response: Response, db: Session = Depends(get_db), current_user: str = Depends(JWTBearer())):
     db_user = get_user(db=db, username=username)
     if db_user is None:
         raise HTTPException(
@@ -80,5 +80,5 @@ def delete_user_by_username(username: str, db: Session = Depends(get_db), curren
             status_code=status.HTTP_403_FORBIDDEN, detail="You are not allowed to delete this user."
         )
     delete_user(db=db, username=current_user)
-    response.delete_cookie("JWTBearer")
+    response.delete_cookie(key="Authorization")
     return {"detail": f"User {username} deleted successfully."}
