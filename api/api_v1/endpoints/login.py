@@ -11,7 +11,7 @@ router = APIRouter()
 
 
 @router.post("/login", response_model=Token)
-async def user_login(user: UserLogin, db: Session = Depends(get_db)):
+def user_login(user: UserLogin, db: Session = Depends(get_db)):
     if authenticate(db=db, user=user):
         return sign_jwt(user.username)
     else:

@@ -12,8 +12,8 @@ class User(Timestamp, Base):
     hashed_password = Column(String, nullable=False)
     is_active = Column(Boolean, default=False)
 
-    profile = relationship("UserProfile", back_populates="owner", uselist=False)
-    tasks = relationship("Task", back_populates="task_owner")
+    profile = relationship("UserProfile", back_populates="owner", uselist=False, cascade="all, delete-orphan")
+    tasks = relationship("Task", back_populates="task_owner", cascade="all, delete-orphan")
 
 
 class UserProfile(Timestamp, Base):

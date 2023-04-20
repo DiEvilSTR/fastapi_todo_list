@@ -4,5 +4,6 @@ pydantic[email]
 PyJWT
 python-decouple
 sqlalchemy
+asyncpg
 psycopg2
 alembic

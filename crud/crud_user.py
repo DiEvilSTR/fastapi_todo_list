@@ -44,3 +44,8 @@ def change_user_status(db: Session, username: str, status: bool):
         return None
 
 
+def delete_user(db: Session, username: str):
+    db_user = get_user(db=db, username=username)
+    db.delete(db_user)
+    db.commit()
+    return db_user
