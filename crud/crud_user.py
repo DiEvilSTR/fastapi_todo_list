@@ -6,7 +6,6 @@ from models.user import User
 from schemas.user import UserCreate
 from schemas.login import UserLogin
 
-PASSWORD_HASH = config('PASSWORD_HASH')
 
 def get_user(db: Session, username: str):
     return db.query(User).filter(User.username == username).first()
