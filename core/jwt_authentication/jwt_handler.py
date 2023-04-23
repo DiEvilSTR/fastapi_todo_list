@@ -2,7 +2,6 @@
 import time
 import jwt
 
-from decouple import config
 from core.config import settings
 
 
