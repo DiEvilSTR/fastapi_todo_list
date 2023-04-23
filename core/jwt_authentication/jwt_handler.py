@@ -3,20 +3,16 @@ import time
 import jwt
 
 from decouple import config
-
-JWT_SECRET_KEY = config("SECRET_KEY")
-JWT_ALGORITHM = config("ALGORITHM")
-
-token_lifespan = 60000
+from core.config import settings
 
 
 # Function used for signing the JWT string
 def sign_jwt(username: str):
     payload = {
         "username": username,
-        "expires": time.time() + token_lifespan
+        "expires": time.time() + settings.ACCESS_TOKEN_EXPIRE_MINUTES
     }
-    token = jwt.encode(payload, JWT_SECRET_KEY, algorithm=JWT_ALGORITHM)
+    token = jwt.encode(payload, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return {
         "access_token": token,
         "token_type": "bearer"
@@ -26,7 +22,7 @@ def sign_jwt(username: str):
 # Function used for decoding token
 def decode_jwt(token: str):
     try:
-        decoded_token = jwt.decode(token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
+        decoded_token = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         return decoded_token if decoded_token["expires"] >= time.time() else None
     except:
         return None
