@@ -1,12 +1,12 @@
 from fastapi import Depends, APIRouter, HTTPException, Response, status
 from sqlalchemy.orm import Session
 
+from core.jwt_authentication.jwt_bearer import JWTBearer
 from core.jwt_authentication.jwt_handler import sign_jwt
 from crud.crud_user import authenticate
 from db.db_setup import get_db
 from schemas.auth import Token
 from schemas.login import UserLogin
-from core.jwt_authentication.jwt_bearer import JWTBearer
 
 router = APIRouter()
 

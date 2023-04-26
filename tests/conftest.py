@@ -1,34 +1,42 @@
 import os
 import pytest
 
-from db.db_setup import SessionLocal, Base
-from decouple import config
-from fastapi import FastAPI
+from core.config import settings
+from db.db_setup import Base
 from fastapi.testclient import TestClient
 from main import app
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
-# Set up a separate database for testing
-TEST_DATABASE_URL = config('TEST_DATABASE_URL')
+
 
 # Configure the database connection
-test_engine = create_engine(TEST_DATABASE_URL)
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=test_engine)
+test_engine = create_engine(
+    settings.SQLALCHEMY_TEST_DATABASE_URL,
+    connect_args={},
+    future=True
+    )
 
-# Create a new FastAPI application for testing
-test_app = FastAPI()
+TestingSessionLocal = sessionmaker(
+    autocommit=False,
+    autoflush=False,
+    bind=test_engine,
+    future=True
+    )
+
 
 # Override the database dependency in the test environment
 @pytest.fixture(autouse=True)
 def override_get_db(monkeypatch):
-    monkeypatch.setattr("app.dependencies.get_db", lambda: TestingSessionLocal())
+    monkeypatch.setattr("db.db_setup.get_db", lambda: TestingSessionLocal())
+
 
 # Create a test client for making requests against the application
-@pytest.fixture
-def client():
-    with TestClient(app) as client:
-        yield client
+@pytest.fixture(scope="module")
+def get_test_db():
+    with TestClient(app) as test_db:
+        yield test_db
+
 
 # Create and drop the test database before and after running the tests
 @pytest.fixture(scope="session", autouse=True)
