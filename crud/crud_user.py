@@ -32,6 +32,7 @@ def authenticate(db: Session, user: UserLogin):
         return None
 
 
+# Not used but included to show how you would update a user
 def change_user_status(db: Session, username: str, status: bool):
     db_user = get_user(db=db, username=username)
     if db_user:

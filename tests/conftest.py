@@ -9,13 +9,13 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
 
-
 # Configure the database connection
 test_engine = create_engine(
     settings.SQLALCHEMY_TEST_DATABASE_URL,
     connect_args={},
     future=True
     )
+
 
 TestingSessionLocal = sessionmaker(
     autocommit=False,
