@@ -34,8 +34,8 @@ def override_get_db(monkeypatch):
 # Create a test client for making requests against the application
 @pytest.fixture(scope="module")
 def get_test_db():
-    with TestClient(app) as test_db:
-        yield test_db
+    with TestClient(app) as test_client:
+        yield test_client
 
 
 # Create and drop the test database before and after running the tests

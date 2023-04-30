@@ -1,7 +1,6 @@
 from decouple import config
 from pydantic import BaseSettings
 
-
 class Settings(BaseSettings):
     # Project Details
     AUTHOR: str = config("AUTHOR")

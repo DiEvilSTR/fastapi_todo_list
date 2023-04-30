@@ -44,3 +44,5 @@ class JWTBearer(HTTPBearer):
         except:
             username = None
         return username
+
+jwt_scheme = JWTBearer()

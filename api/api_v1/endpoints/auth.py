@@ -1,8 +1,9 @@
 from fastapi import Depends, APIRouter, HTTPException, Response, status
 from sqlalchemy.orm import Session
 
-from core.jwt_authentication.jwt_bearer import JWTBearer
+from core.jwt_authentication.jwt_bearer import jwt_scheme
 from core.jwt_authentication.jwt_handler import sign_jwt
+from core.config import settings
 from crud.crud_user import authenticate
 from db.db_setup import get_db
 from schemas.auth import Token
@@ -21,7 +22,7 @@ def user_login(user: UserLogin, db: Session = Depends(get_db)):
         )
 
 
-@router.post("/logout", dependencies=[Depends(JWTBearer())])
+@router.post("/logout", dependencies=[Depends(jwt_scheme)])
 def user_logout(response: Response):
     response.delete_cookie(key="Authorization")
     return {"detail": "Successfully logged out!"}
