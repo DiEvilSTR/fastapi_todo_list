@@ -7,3 +7,5 @@ alembic/versions/*
 alembic.ini
 venv
 __pycache__
+.pytest_cache
+```
