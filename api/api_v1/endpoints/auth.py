@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from core.jwt_authentication.jwt_bearer import jwt_scheme
 from core.jwt_authentication import jwt_handler
 from crud import crud_user
-from db.db_setup import get_db
+from db import db_setup
 from schemas.auth import Token
 from schemas.login import UserLogin
 
@@ -13,7 +13,7 @@ router = APIRouter()
 
 #1 User Login [Login user]
 @router.post("/login", response_model=Token)
-def user_login(user: UserLogin, db: Session = Depends(get_db)):
+def user_login(user: UserLogin, db: Session = Depends(db_setup.get_db)):
     if crud_user.authenticate(db=db, user=user):
         return jwt_handler.sign_jwt(user.username)
     else:

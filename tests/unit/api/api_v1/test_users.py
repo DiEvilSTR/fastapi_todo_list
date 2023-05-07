@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch, ANY
 from core.config import settings
 from core.jwt_authentication.jwt_bearer import jwt_scheme
 from main import app
-from tests.conftest import get_test_db
+from tests.conftest import test_client
 
 test_user_1 = {
     "username": "test_user_1",
@@ -30,11 +30,11 @@ def mock_jwt_scheme():
 app.dependency_overrides[jwt_scheme] = mock_jwt_scheme
 
 
-def test_read_users(get_test_db):
+def test_read_users(test_client):
     #1 Test the read_users endpoint for calling the crud_user.get_users function
     mock_get_users = MagicMock(return_value=[test_user_1])
     with patch("crud.crud_user.get_users", mock_get_users):
-        response = get_test_db.get(
+        response = test_client.get(
             f"{settings.API_V1_STR}/users/",
             headers={"Authorization": "Bearer test_token"}
         )
@@ -46,7 +46,7 @@ def test_read_users(get_test_db):
             "The response should be a list containing Test user"
 
 
-def test_create_user(get_test_db):
+def test_create_user(test_client):
     #2 Test the signup endpoint for calling the crud_user.create_user function
     mock_get_user = MagicMock(return_value=None)
     mock_create_user = MagicMock(return_value=test_user_1)
@@ -55,7 +55,7 @@ def test_create_user(get_test_db):
         patch("crud.crud_user.create_user", mock_create_user), \
         patch("crud.crud_user_profile.user_profile_create", \
         mock_user_profile_create):
-        response = get_test_db.post(
+        response = test_client.post(
             f"{settings.API_V1_STR}/users/signup/",
             json={"username": "test_user", "password": "test_password"}
         )
@@ -71,11 +71,11 @@ def test_create_user(get_test_db):
             "The response should be a dict containing Test user"
 
 
-def test_read_current_user(get_test_db):
+def test_read_current_user(test_client):
     #3 Test the read_current_user endpoint for calling the crud_user_profile.user_profile_get function
     mock_user_profile_get = MagicMock(return_value=test_user_profile_1)
     with patch("crud.crud_user_profile.user_profile_get", mock_user_profile_get):
-        response = get_test_db.get(
+        response = test_client.get(
             f"{settings.API_V1_STR}/users/me/",
             headers={"Authorization": "Bearer test_token"}
         )
@@ -87,11 +87,11 @@ def test_read_current_user(get_test_db):
             "The response should be a dict containing Test user profile"
 
 
-def test_read_user(get_test_db):
+def test_read_user(test_client):
     #4 Test the read_user endpoint for calling the crud_user_profile.user_profile_get function
     mock_user_profile_get = MagicMock(return_value=test_user_profile_1)
     with patch("crud.crud_user_profile.user_profile_get", mock_user_profile_get):
-        response = get_test_db.get(
+        response = test_client.get(
             f"{settings.API_V1_STR}/users/user/{test_user_profile_1['username']}/",
             headers={"Authorization": "Bearer test_token"}
         )
@@ -103,13 +103,13 @@ def test_read_user(get_test_db):
             "The response should be a dict containing Test user profile"
 
 
-def test_update_user_profile(get_test_db):
+def test_update_user_profile(test_client):
     #5 Test the update_user_profile endpoint for calling the crud_user_profile's user_profile_get and user_profile_update functions
     mock_user_profile_get = MagicMock(return_value=test_user_profile_1)
     mock_user_profile_update = MagicMock(return_value=test_user_profile_1)
     with patch("crud.crud_user_profile.user_profile_get", mock_user_profile_get), \
         patch("crud.crud_user_profile.user_profile_update", mock_user_profile_update):
-        response = get_test_db.patch(
+        response = test_client.patch(
             f"{settings.API_V1_STR}/users/user/{test_user_profile_1['username']}/",
             headers={"Authorization": "Bearer test_token"},
             json={"first_name": "Test", "last_name": "User"}
@@ -128,13 +128,13 @@ def test_update_user_profile(get_test_db):
             "The response should be a dict containing Test user profile"
 
 
-def test_delete_user_by_username(get_test_db):
+def test_delete_user_by_username(test_client):
     #6 Test the delete_user_by_username endpoint for calling the crud_user's delete_user function
     mock_get_user = MagicMock(return_value=test_user_1)
     mock_delete_user = MagicMock(return_value=test_user_1)
     with patch("crud.crud_user.get_user", mock_get_user), \
         patch("crud.crud_user.delete_user", mock_delete_user):
-        response = get_test_db.delete(
+        response = test_client.delete(
             f"{settings.API_V1_STR}/users/user/{test_user_1['username']}/",
             headers={"Authorization": "Bearer test_token"}
         )
