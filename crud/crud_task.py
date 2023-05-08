@@ -13,11 +13,6 @@ def get_task_by_title(db: Session, task_title: str, username: str):
     return db.query(Task).filter(and_(Task.title == task_title, Task.created_by == username)).first()
 
 
-# For now, we are not using this function
-def get_all_tasks(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(Task).offset(skip).limit(limit).all()
-
-
 def get_all_user_tasks(db: Session, username: str, skip: int = 0, limit: int = 100):
     return db.query(Task).filter(Task.created_by == username).offset(skip).limit(limit).all()
 

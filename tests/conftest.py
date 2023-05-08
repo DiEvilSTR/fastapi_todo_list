@@ -1,38 +1,53 @@
 import os
 import pytest
+from unittest.mock import MagicMock, patch
 
-from db.db_setup import SessionLocal, Base
-from decouple import config
-from fastapi import FastAPI
+from core.config import settings
+from db import db_setup
 from fastapi.testclient import TestClient
 from main import app
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
-# Set up a separate database for testing
-TEST_DATABASE_URL = config('TEST_DATABASE_URL')
 
 # Configure the database connection
-test_engine = create_engine(TEST_DATABASE_URL)
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=test_engine)
+test_engine = create_engine(
+    settings.SQLALCHEMY_TEST_DATABASE_URL,
+    connect_args={},
+    future=True
+)
 
-# Create a new FastAPI application for testing
-test_app = FastAPI()
 
-# Override the database dependency in the test environment
-@pytest.fixture(autouse=True)
-def override_get_db(monkeypatch):
-    monkeypatch.setattr("app.dependencies.get_db", lambda: TestingSessionLocal())
+TestingSessionLocal = sessionmaker(
+    autocommit=False,
+    autoflush=False,
+    bind=test_engine,
+    future=True
+)
+
 
 # Create a test client for making requests against the application
-@pytest.fixture
-def client():
-    with TestClient(app) as client:
-        yield client
+@pytest.fixture(scope="module")
+def get_test_db():
+    test_client = TestingSessionLocal()
+    try:
+        yield test_client
+    finally:
+        test_client.close()
+
+
+# Create a test client for making requests against the application
+@pytest.fixture(scope="module")
+def test_client():
+    override_session_local = MagicMock(return_value=TestingSessionLocal())
+    with patch("db.db_setup.SessionLocal", override_session_local):
+        with TestClient(app) as test_client:
+            yield test_client
+
 
 # Create and drop the test database before and after running the tests
 @pytest.fixture(scope="session", autouse=True)
 def setup_and_teardown_database():
-    Base.metadata.create_all(bind=test_engine)
+    db_setup.Base.metadata.create_all(bind=test_engine)
     yield
-    Base.metadata.drop_all(bind=test_engine)
+    db_setup.Base.metadata.drop_all(bind=test_engine)

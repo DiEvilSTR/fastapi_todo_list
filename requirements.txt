@@ -1,5 +1,7 @@
+# Main dependencies
 fastapi
 uvicorn
+httpx
 pydantic[email]
 PyJWT
 passlib
