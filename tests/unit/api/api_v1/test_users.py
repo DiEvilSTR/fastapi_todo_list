@@ -8,7 +8,6 @@ from tests.conftest import test_client
 
 test_user_1 = {
     "username": "test_user_1",
-    "is_active": False,
     "created_at": "2038-01-19T03:14:07.123456",
     "updated_at": "2038-01-19T03:14:07.123456"
 }

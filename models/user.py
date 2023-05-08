@@ -10,7 +10,6 @@ class User(Timestamp, Base):
 
     username = Column(String(16), nullable=False, primary_key=True, unique=True)
     hashed_password = Column(String, nullable=False)
-    is_active = Column(Boolean, default=False)
 
     profile = relationship("UserProfile", back_populates="owner", uselist=False, cascade="all, delete-orphan")
 

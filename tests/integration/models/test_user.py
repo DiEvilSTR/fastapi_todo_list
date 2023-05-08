@@ -21,8 +21,6 @@ def test_user_model(get_test_db):
             f"Expected username to be {username}, got {db_test_user.username}"
         assert db_test_user.hashed_password == hashed_password, \
             f"Expected hashed_password to be {hashed_password}, got {db_test_user.hashed_password}"
-        assert db_test_user.is_active == False, \
-            f"Expected is_active to be False, got {db_test_user.is_active}"
 
         # Test that the Timestamp columns were automatically populated
         assert isinstance(db_test_user.created_at, datetime), \
