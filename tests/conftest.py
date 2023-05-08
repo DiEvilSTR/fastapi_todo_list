@@ -50,4 +50,4 @@ def test_client():
 def setup_and_teardown_database():
     db_setup.Base.metadata.create_all(bind=test_engine)
     yield
-    # db_setup.Base.metadata.drop_all(bind=test_engine)
+    db_setup.Base.metadata.drop_all(bind=test_engine)
