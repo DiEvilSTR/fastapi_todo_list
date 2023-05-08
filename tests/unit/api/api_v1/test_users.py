@@ -87,30 +87,14 @@ def test_read_current_user(test_client):
             "The response should be a dict containing Test user profile"
 
 
-def test_read_user(test_client):
-    #4 Test the read_user endpoint for calling the crud_user_profile.user_profile_get function
-    mock_user_profile_get = MagicMock(return_value=test_user_profile_1)
-    with patch("crud.crud_user_profile.user_profile_get", mock_user_profile_get):
-        response = test_client.get(
-            f"{settings.API_V1_STR}/users/user/{test_user_profile_1['username']}/",
-            headers={"Authorization": "Bearer test_token"}
-        )
-        mock_user_profile_get.assert_called_once_with(db=ANY, username=test_user_profile_1['username']), \
-            "The crud_user_profile's user_profile_get function should be called with the test_user1 username"
-        assert response.status_code == 200, \
-            "The response should contain a success status code"
-        assert response.json() == test_user_profile_1, \
-            "The response should be a dict containing Test user profile"
-
-
 def test_update_user_profile(test_client):
-    #5 Test the update_user_profile endpoint for calling the crud_user_profile's user_profile_get and user_profile_update functions
+    #4 Test the update_user_profile endpoint for calling the crud_user_profile's user_profile_get and user_profile_update functions
     mock_user_profile_get = MagicMock(return_value=test_user_profile_1)
     mock_user_profile_update = MagicMock(return_value=test_user_profile_1)
     with patch("crud.crud_user_profile.user_profile_get", mock_user_profile_get), \
         patch("crud.crud_user_profile.user_profile_update", mock_user_profile_update):
         response = test_client.patch(
-            f"{settings.API_V1_STR}/users/user/{test_user_profile_1['username']}/",
+            f"{settings.API_V1_STR}/users/me/",
             headers={"Authorization": "Bearer test_token"},
             json={"first_name": "Test", "last_name": "User"}
         )
@@ -135,7 +119,7 @@ def test_delete_user_by_username(test_client):
     with patch("crud.crud_user.get_user", mock_get_user), \
         patch("crud.crud_user.delete_user", mock_delete_user):
         response = test_client.delete(
-            f"{settings.API_V1_STR}/users/user/{test_user_1['username']}/",
+            f"{settings.API_V1_STR}/users/me/",
             headers={"Authorization": "Bearer test_token"}
         )
         mock_get_user.assert_called_once_with(db=ANY, username=test_user_1['username']), \
@@ -146,3 +130,19 @@ def test_delete_user_by_username(test_client):
             "The response should contain a success status code"
         assert response.json() == {"detail": f"User {test_user_1['username']} deleted successfully."}, \
             "The response should be a dict containing a success message"
+
+
+def test_read_user(test_client):
+    #5 Test the read_user endpoint for calling the crud_user_profile.user_profile_get function
+    mock_user_profile_get = MagicMock(return_value=test_user_profile_1)
+    with patch("crud.crud_user_profile.user_profile_get", mock_user_profile_get):
+        response = test_client.get(
+            f"{settings.API_V1_STR}/users/user/{test_user_profile_1['username']}/",
+            headers={"Authorization": "Bearer test_token"}
+        )
+        mock_user_profile_get.assert_called_once_with(db=ANY, username=test_user_profile_1['username']), \
+            "The crud_user_profile's user_profile_get function should be called with the test_user1 username"
+        assert response.status_code == 200, \
+            "The response should contain a success status code"
+        assert response.json() == test_user_profile_1, \
+            "The response should be a dict containing Test user profile"

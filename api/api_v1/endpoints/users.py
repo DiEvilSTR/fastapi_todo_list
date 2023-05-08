@@ -36,10 +36,39 @@ def user_signup(user: UserCreate, db: Session = Depends(db_setup.get_db)):
 @router.get("/me", response_model=UserProfile, dependencies=[Depends(jwt_scheme)])
 def read_current_user(db: Session = Depends(db_setup.get_db), current_user: str = Depends(jwt_scheme)):
     db_user_profile = crud_user_profile.user_profile_get(db=db, username=current_user)
+    if db_user_profile is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User with this username does not exists."
+        )
     return db_user_profile
 
 
-#4 Read User [Get user by username]
+#4 Update User Profile [Update user profile]
+@router.patch("/me", response_model=UserProfile, dependencies=[Depends(jwt_scheme)])
+def update_user_profile(updated_user_profile: UserProfileUpdate, db: Session = Depends(db_setup.get_db), current_user: str = Depends(jwt_scheme)):
+    db_user_profile = crud_user_profile.user_profile_get(db=db, username=current_user)
+    if db_user_profile is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User with this username does not exists."
+        )
+    db_user_profile = crud_user_profile.user_profile_update(db=db, user_profile=updated_user_profile, username=current_user)
+    return db_user_profile
+
+
+#5 Delete User [Delete user, user profile, and all user's tasks]
+@router.delete("/me", dependencies=[Depends(jwt_scheme)])
+def delete_user_by_username(response: Response, db: Session = Depends(db_setup.get_db), current_user: str = Depends(jwt_scheme)):
+    db_user = crud_user.get_user(db=db, username=current_user)
+    if db_user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User with this username does not exists."
+        )
+    crud_user.delete_user(db=db, username=current_user)
+    response.delete_cookie(key="Authorization")
+    return {"detail": f"User {current_user} deleted successfully."}
+
+
+#6 Read User [Get user by username]
 @router.get("/user/{username}", response_model=UserProfile, dependencies=[Depends(jwt_scheme)])
 def read_user(username: str, db: Session = Depends(db_setup.get_db)):
     db_user_profile = crud_user_profile.user_profile_get(db=db, username=username)
@@ -50,34 +79,4 @@ def read_user(username: str, db: Session = Depends(db_setup.get_db)):
     return db_user_profile
 
 
-#5 Update User Profile [Update user profile]
-@router.patch("/user/{username}", response_model=UserProfile, dependencies=[Depends(jwt_scheme)])
-def update_user_profile(username: str, updated_user_profile: UserProfileUpdate, db: Session = Depends(db_setup.get_db), current_user: str = Depends(jwt_scheme)):
-    db_user_profile = crud_user_profile.user_profile_get(db=db, username=username)
-    if db_user_profile is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="User with this username does not exists."
-        )
-    if current_user != username:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="You are not allowed to update this user."
-        )
-    db_user_profile = crud_user_profile.user_profile_update(db=db, user_profile=updated_user_profile, username=current_user)
-    return db_user_profile
 
-
-#6 Delete User [Delete user, user profile, and all user's tasks]
-@router.delete("/user/{username}", dependencies=[Depends(jwt_scheme)])
-def delete_user_by_username(username: str, response: Response, db: Session = Depends(db_setup.get_db), current_user: str = Depends(jwt_scheme)):
-    db_user = crud_user.get_user(db=db, username=username)
-    if db_user is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="User with this username does not exists."
-        )
-    if current_user != username:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="You are not allowed to delete this user."
-        )
-    crud_user.delete_user(db=db, username=current_user)
-    response.delete_cookie(key="Authorization")
-    return {"detail": f"User {username} deleted successfully."}

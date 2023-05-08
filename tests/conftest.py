@@ -1,6 +1,6 @@
 import os
 import pytest
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from core.config import settings
 from db import db_setup
@@ -39,8 +39,10 @@ def get_test_db():
 # Create a test client for making requests against the application
 @pytest.fixture(scope="module")
 def test_client():
-    with TestClient(app) as test_client:
-        yield test_client
+    override_session_local = MagicMock(return_value=TestingSessionLocal())
+    with patch("db.db_setup.SessionLocal", override_session_local):
+        with TestClient(app) as test_client:
+            yield test_client
 
 
 # Create and drop the test database before and after running the tests
